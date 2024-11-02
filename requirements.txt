@@ -1,0 +1,4 @@
+PyYAML==6.0.2
+openai==1.47.0
+mistletoe==1.4.0
+mcpi==1.2.1
