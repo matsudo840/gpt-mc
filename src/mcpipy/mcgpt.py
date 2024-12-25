@@ -48,7 +48,7 @@ def askgpt(system_prompt: str, user_prompt: str, model_name: str, image_url: str
     logging.info("Initialized the OpenAI client.")
 
     # Define the messages for the conversation
-    if model_name in ("o1", "o1-mini"):
+    if model_name in ("o1", "o1-mini", "o1-preview"):
         messages = [{"role": "user", "content": system_prompt}]
     else:
         messages = [{"role": "system", "content": system_prompt}]
@@ -164,23 +164,36 @@ def main():
     logging.info(f"image_url: {image_url}")
 
     # Step4: Generate Python program to execute with mcpi
-    response, _ = askgpt(STEP4_SYS, STEP4_USER.replace(
-        "%STEP1_RESULT%", detailed_prompt), "o1", )
 
-    # APIの出力結果からコード部分をテキストで抽出
-    python_code = get_code_blocks(response)
+    retry_count = 0
+    max_retry_count = 3
 
-    mc.postToChat(f"Step4: python code done (4/4), waiting for building...")
-    logging.info(f"python_code:\n{python_code}")
+    # Retry the specified number of times if it doesn't work once
+    while retry_count < max_retry_count:
 
-    # 実行するためのPythonコードをファイルに保存
-    with open("python_code.py", "w") as f:
-        f.write(python_code)
+        response, _ = askgpt(STEP4_SYS, STEP4_USER.replace(
+            "%STEP1_RESULT%", detailed_prompt), "o1-preview", )
 
-    # 生成されたPythonコードを実行
-    exec(python_code, globals())
+        # Extract the code part from the API output as text
+        python_code = get_code_blocks(response)
 
-    mc.postToChat("Success!")
+        mc.postToChat(f"Step4: python code done (4/4), waiting for building...")
+        logging.info(f"python_code:\n{python_code}")
 
+        # Save the generated Python code to a file for execution
+        with open("python_code.py", "w") as f:
+            f.write(python_code)
+
+        try:
+            # Execute the generated Python code
+            exec(python_code, globals())
+            mc.postToChat("Success!")
+            break
+        except Exception as e:
+            retry_count += 1
+            mc.postToChat(f"Failed! Retrying... count: {retry_count} (MAX: {max_retry_count})")
+
+    if retry_count == max_retry_count:
+        mc.postToChat("Error: Execution failed.")
 
 main()
