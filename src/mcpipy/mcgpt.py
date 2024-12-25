@@ -48,7 +48,10 @@ def askgpt(system_prompt: str, user_prompt: str, model_name: str, image_url: str
     logging.info("Initialized the OpenAI client.")
 
     # Define the messages for the conversation
-    messages = [{"role": "system", "content": system_prompt}]
+    if model_name in ("o1", "o1-mini"):
+        messages = [{"role": "user", "content": system_prompt}]
+    else:
+        messages = [{"role": "system", "content": system_prompt}]
     messages.extend(extra_messages)
 
     if image_url is not None:
@@ -141,34 +144,33 @@ def main():
     prompt = sys.argv[1]
     mc.postToChat(f"Prompt: {prompt}")
     logging.info(f"Prompt: {prompt}")
-
-    # Step 1: 詳細な説明を生成
+    # Step1: Generate detailed description
     detailed_prompt, _ = askgpt(STEP1_SYS, STEP1_USER.replace(
         "%DESCRIPTION%", prompt), "gpt-4o-mini")
-    mc.postToChat(f"Step1 done (1/4)")
+    mc.postToChat(f"Step1: detailed description done (1/4)")
     logging.info(f"detailed_prompt: {detailed_prompt}")
 
-    # Step 2: DALL-Eに入力するためのimageタグを生成
+    # Step2: Generate image tag for DALL-E input
     image_tag, _ = askgpt(STEP2_SYS, STEP2_USER.replace(
         "%STEP1_RESULT%", detailed_prompt), "gpt-4o-mini")
-    mc.postToChat(f"Step2 done (2/4)")
+    mc.postToChat(f"Step2: image tag done (2/4)")
     logging.info(f"image_tag: {image_tag}")
 
-    # Step 3: 画像を生成
+    # Step3: Generate image
     image_tag = " Structures that can be realized with about 30 block cubes in Minecraft." + image_tag.replace(
         "\"", "")
     image_url = ask_dall_e(image_tag)
-    mc.postToChat(f"Step3 done (3/4)")
+    mc.postToChat(f"Step3: image generation done (3/4)")
     logging.info(f"image_url: {image_url}")
 
-    # Step 4: mcpiで実行するためのPythonプログラムを生成
+    # Step4: Generate Python program to execute with mcpi
     response, _ = askgpt(STEP4_SYS, STEP4_USER.replace(
-        "%STEP1_RESULT%", detailed_prompt), "gpt-4o", )
+        "%STEP1_RESULT%", detailed_prompt), "o1", )
 
     # APIの出力結果からコード部分をテキストで抽出
     python_code = get_code_blocks(response)
 
-    mc.postToChat(f"Step4 done (4/4), waiting for building...")
+    mc.postToChat(f"Step4: python code done (4/4), waiting for building...")
     logging.info(f"python_code:\n{python_code}")
 
     # 実行するためのPythonコードをファイルに保存

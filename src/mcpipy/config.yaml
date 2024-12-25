@@ -25,8 +25,9 @@ STEP4_SYS: |
     - Code that creates an elaborate structure should be output in as much detail as possible.
     - Code should be enclosed in Markdown code blocks
     - Code should be in a format that can be executed with the Python exec function
-    - Use only the blocks in minecraft 1.12
+    - Use only the blocks in Minecraft 1.12
     - The block is not specified like "block.STONE.id", but directly by the ID value (1 for STONE).
+    - Build 10 blocks away from the player's current position.
 
 STEP4_USER: |
   %STEP1_RESULT%
