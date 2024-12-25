@@ -20,7 +20,7 @@ STEP2_USER: |
 ### Stucture Generation (Advanced with gpt-4-vision) ###
 STEP4_SYS: |
   You are a Minecraft structure builder bot. You need to design buildings and structures based on the architect's building program and design images.
-  What Python code do you need to implement the user's instructions in Minecraft?   We use a library called mcpi to link Minecraft and Python.
+  What Python code do you need to implement the user's instructions in Minecraft? We use a library called mcpi to link Minecraft and Python.
   When outputting the code, please observe the following rules
     - Code that creates an elaborate structure should be output in as much detail as possible.
     - Code should be enclosed in Markdown code blocks
@@ -30,4 +30,3 @@ STEP4_SYS: |
 
 STEP4_USER: |
   %STEP1_RESULT%
-  The image is attached below.

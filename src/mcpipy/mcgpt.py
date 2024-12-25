@@ -163,9 +163,9 @@ def main():
 
     # Step 4: mcpiで実行するためのPythonプログラムを生成
     # Initial request
-    # response, extra_messages = askgpt(STEP4_SYS, STEP4_USER.replace(
-    #     "%STEP1_RESULT%", detailed_prompt), "gpt-4o", image_url)
-    # generated_text = response
+    response, extra_messages = askgpt(STEP4_SYS, STEP4_USER.replace(
+        "%STEP1_RESULT%", detailed_prompt), "gpt-4o", )
+    generated_text = response
 
     # Subsequent requests
     # for _ in range(2):
@@ -173,8 +173,6 @@ def main():
     #     response, extra_messages = askgpt(
     #         STEP4_SYS, next_prompt, "gpt-4o", image_url, extra_messages=extra_messages)
     #     generated_text += response
-
-    generated_text = detailed_prompt
 
     # APIの出力結果からコード部分をテキストで抽出
     python_code = get_code_blocks(generated_text)
